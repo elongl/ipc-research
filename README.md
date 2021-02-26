@@ -12,12 +12,13 @@
 - What happens if a process attempts to msgrcv while `free_msg::cond_resched`
 - Will failing (goto) between (`ss_add`)[https://elixir.bootlin.com/linux/latest/source/ipc/msg.c#L899] and `ss_del` create a dangling sender 
 - Why aren't atomic operations used (here)[https://elixir.bootlin.com/linux/latest/source/ipc/msg.c#L934]
+- What happens if you specify both `MSG_COPY` and `MSG_NOERROR` no `msgrcv`
 
 ### Answered
 
 
 ## TODOs
-- Deepen into RCU.
+- [x] Deepen into RCU.
 
 
 ## Code Auditing
