@@ -22,16 +22,14 @@ struct msgbuf {
 
 int main() {
 	int msqid;
-	char buf[BUFSIZE];
-	struct msgbuf msg = { MTYPE, TEXT };
+	char buf[BUFSIZE] = { TEXT };
+	struct msgbuf msg = { MTYPE, buf };
 
 	if ((msqid = msgget(MSQ_KEY, IPC_PRIVATE | IPC_CREAT | S_IRWXU)) < 0)
 		ERR_EXIT("msgget");
 
 	if (msgsnd(msqid, &msg, strlen(TEXT), 0) < 0)
 		ERR_EXIT("msgsnd");
-
-	memset(&msg, 0, sizeof(msg));
 
 	if (msgrcv(msqid, &msg, BUFSIZE, MTYPE, 0) < 0)
 		ERR_EXIT("msgrcv");
