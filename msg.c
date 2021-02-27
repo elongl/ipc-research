@@ -6,35 +6,36 @@
 #include <sys/msg.h>
 #include <sys/stat.h>
 
+#define MSG_COPY        040000  /* copy (not remove) all queue messages */
 
 #define ERR_EXIT(err) do { perror(err); exit(EXIT_FAILURE); } while (0)
 
 #define MSQ_KEY 0x41414141
 #define MTYPE 1
-#define BUFSIZE 1024
+#define BUFSZ 1024
 #define TEXT "Hello World!"
 
 struct msgbuf {
-	long mtype;       /* message type, must be > 0 */
-	char* mtext;      /* message data */
+	long mtype;
+	char mtext[BUFSZ];
 };
 
 
 int main() {
 	int msqid;
-	char buf[BUFSIZE] = { TEXT };
-	struct msgbuf msg = { MTYPE, buf };
+	ssize_t nread;
+	struct msgbuf msg = { MTYPE, TEXT };
 
 	if ((msqid = msgget(MSQ_KEY, IPC_PRIVATE | IPC_CREAT | S_IRWXU)) < 0)
 		ERR_EXIT("msgget");
 
-	if (msgsnd(msqid, &msg, strlen(TEXT), 0) < 0)
+	if (msgsnd(msqid, &msg, strlen(msg.mtext), 0) < 0)
 		ERR_EXIT("msgsnd");
 
-	if (msgrcv(msqid, &msg, BUFSIZE, MTYPE, 0) < 0)
+	if ((nread = msgrcv(msqid, &msg, BUFSZ, MTYPE, 0)) < 0)
 		ERR_EXIT("msgrcv");
 
-	printf("Text: %s\n", msg.mtext);
+	printf("[%lu] Text: %s\n", nread, msg.mtext);
 
 	if (msgctl(msqid, IPC_RMID, NULL) < 0)
 		ERR_EXIT("msgctl");
